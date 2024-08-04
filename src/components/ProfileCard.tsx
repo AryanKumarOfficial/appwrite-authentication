@@ -2,13 +2,14 @@
 import appwriteService from "@/appwrite/config";
 import {Models} from "appwrite";
 import Link from "next/link";
-import React, {useEffect, useState} from "react";
+import React, {MouseEventHandler, useEffect, useState} from "react";
 import Avatar from "./Avatar";
+import useAuth from "@/context/useAuth";
 
 
 const ProfileCard = () => {
     const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
-
+    const {setAuthStatus} = useAuth();
     useEffect(() => {
         (async () => {
             const userData = await appwriteService.getCurrentUser()
@@ -17,6 +18,16 @@ const ProfileCard = () => {
             }
         })()
     }, [])
+
+    async function handleLogout() {
+        try {
+            await appwriteService.logout();
+            setAuthStatus(false);
+            console.log("logged out!")
+        } catch (err: any) {
+            console.log(err.message)
+        }
+    }
 
     return (
         user && (
@@ -54,12 +65,12 @@ const ProfileCard = () => {
                         </div>
                     </div>
                     <div className="w-full flex justify-center">
-                        <Link
-                            href={"/logout"}
+                        <button
+                            onClick={handleLogout}
                             className="bg-gray-200/70 rounded-xl px-6 py-3 inline-block hover:bg-gray-100 duration-150"
                         >
                             Logout
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </>
